@@ -2,58 +2,11 @@
 // Talks only to this site's own /api/* (same origin; the session is an HttpOnly cookie this script cannot read).
 // The full API key is shown once, right after it is created. All text goes in via textContent.
 import { wallet } from './wallet.js';
+import { $, el, short, when, toast, copy as copyText, api, ApiError } from './ui.js';
+import { mountPro } from './pro.js';
 
-const $ = (sel) => document.querySelector(sel);
 const body = $('#acctBody');
-
-function el(tag, props = {}, ...children) {
-  const n = document.createElement(tag);
-  for (const [k, v] of Object.entries(props)) {
-    if (v == null || v === false) continue;
-    if (k === 'class') n.className = v;
-    else if (k.startsWith('on')) n.addEventListener(k.slice(2), v);
-    else n.setAttribute(k, v === true ? '' : v);
-  }
-  for (const c of children.flat()) if (c != null && c !== false) n.append(c instanceof Node ? c : String(c));
-  return n;
-}
-const short = (a) => `${a.slice(0, 6)}…${a.slice(-4)}`;
-const when = (iso) => (iso ? new Date(iso).toLocaleString() : 'never');
-
-let toastTimer;
-function toast(msg) {
-  const t = $('#toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
-}
-async function copy(text) {
-  try {
-    await navigator.clipboard.writeText(text);
-    toast('Copied — paste it in your terminal');
-  } catch {
-    toast('Copy failed — select the text and copy it manually');
-  }
-}
-
-class ApiError extends Error {
-  constructor(status, message) {
-    super(message);
-    this.status = status;
-  }
-}
-async function api(path, body) {
-  let res;
-  try {
-    res = await fetch(path, body === undefined ? { credentials: 'same-origin' } : { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
-  } catch {
-    throw new ApiError(0, 'The account server could not be reached.');
-  }
-  const data = await res.json().catch(() => null);
-  if (!res.ok) throw new ApiError(res.status, data?.error ?? (res.status === 404 ? 'The account server is not available on this site.' : `Request failed (HTTP ${res.status}).`));
-  return data;
-}
+const copy = (text) => copyText(text, 'Copied — paste it in your terminal');
 
 function errText(e) {
   if (e?.code === 4001) return 'Request rejected in the wallet.';
@@ -191,7 +144,7 @@ async function renderDashboard(newKey = null) {
       k ? el('div', {}, el('span', {}, 'Created'), el('span', {}, when(k.createdAt))) : null,
       k ? el('div', {}, el('span', {}, 'Last used by the CLI'), el('span', {}, when(k.lastUsedAt))) : null,
     ),
-    newKey ? keyBlock(newKey) : null,
+    ...(newKey ? [keyBlock(newKey)] : []),
     el(
       'div',
       { class: 'wm-actions' },
@@ -232,6 +185,7 @@ async function renderDashboard(newKey = null) {
           onclick: run(async () => {
             await api('/api/logout', {});
             wallet.disconnect();
+            $('#proBody').hidden = true;
             renderConnect();
           }),
         },
@@ -241,6 +195,7 @@ async function renderDashboard(newKey = null) {
     line,
     el('p', { class: 'small dim' }, 'Check the link from your terminal any time with ring-hunter whoami.'),
   );
+  mountPro($('#proBody'), { address: me.address, hasKey: !!k });
 }
 
 // ---------- Start: already signed in? ----------

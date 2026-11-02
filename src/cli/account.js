@@ -2,7 +2,8 @@
 // wallet sign-in; the CLI stores it in the config directory. NOTHING in the scanner depends on it — every scan
 // feature works the same without logging in.
 // The key is a secret: it is redacted from output, stored with file mode 0600, and sent only to the account
-// server's /api/cli/whoami as a Bearer token. Never to the AI provider or the RPC.
+// server as a Bearer token (/api/cli/whoami, and /api/rpc when the user opts into --hosted-rpc). Never to the AI
+// provider or a third-party RPC.
 import { existsSync, readFileSync, writeFileSync, rmSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { z } from 'zod';
@@ -86,6 +87,10 @@ export async function runWhoami({ out = process.stdout, fetchImpl, file = CREDEN
   }
   const who = await whoamiRequest(creds.apiUrl, creds.apiKey, { fetchImpl });
   out.write(`${c.green('✓')} Logged in as ${who.address}\n${c.dim(`  Server ${safeUrlLabel(creds.apiUrl)} · key ${keyHint(creds.apiKey)} · linked ${creds.linkedAt}`)}\n`);
+  if (who.pro) {
+    const p = who.pro;
+    out.write(p.active ? `  RING-HUNTER Pro: active${p.paidUntil ? ` until ${p.paidUntil}` : ''}${p.tokenHolder ? ' (token holder)' : ''} · hosted RPC: ring-hunter scan <token> --hosted-rpc\n` : c.dim('  RING-HUNTER Pro: not active (optional — see the website dashboard)\n'));
+  }
   return who;
 }
 

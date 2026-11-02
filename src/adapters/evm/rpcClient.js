@@ -6,7 +6,7 @@ import { createLimiter } from '../../utils/rateLimiter.js';
 import { redact } from '../../utils/redact.js';
 import { logger } from '../../utils/logger.js';
 
-const READ_METHODS = new Set([
+export const READ_METHODS = new Set([
   'eth_chainId',
   'eth_blockNumber',
   'eth_getCode',
@@ -51,7 +51,8 @@ export function classifyRpcError(method, err) {
 }
 
 /** HTTP transport using Node's built-in fetch. */
-export function createHttpTransport({ url, timeoutMs = 15_000, fetchImpl = globalThis.fetch }) {
+/** @param {{url:string, timeoutMs?:number, fetchImpl?:typeof fetch, headers?:Record<string,string>}} p headers: e.g. the hosted-RPC Bearer key */
+export function createHttpTransport({ url, timeoutMs = 15_000, fetchImpl = globalThis.fetch, headers = {} }) {
   let id = 0;
   return {
     label: 'http',
@@ -60,7 +61,7 @@ export function createHttpTransport({ url, timeoutMs = 15_000, fetchImpl = globa
       try {
         res = await fetchImpl(url, {
           method: 'POST',
-          headers: { 'content-type': 'application/json' },
+          headers: { ...headers, 'content-type': 'application/json' },
           body: JSON.stringify({ jsonrpc: '2.0', id: ++id, method, params }),
           signal: AbortSignal.timeout(timeoutMs),
         });
@@ -68,6 +69,7 @@ export function createHttpTransport({ url, timeoutMs = 15_000, fetchImpl = globa
         const timeout = e?.name === 'TimeoutError' || e?.name === 'AbortError';
         throw new RpcError(timeout ? `RPC timeout after ${timeoutMs} ms (${method})` : `RPC connection failed: ${redact(e.message)}`, {
           retryable: true,
+          hint: timeout ? null : 'If your internet provider blocks the RPC host, switch to encrypted DNS (e.g. Cloudflare 1.1.1.1 DNS over HTTPS). RING-HUNTER Pro users can also scan with --hosted-rpc.',
         });
       }
       if (res.status === 429) throw new RpcError('RPC rate limit (HTTP 429)', { code: 429, retryable: true });
@@ -82,6 +84,8 @@ export function createHttpTransport({ url, timeoutMs = 15_000, fetchImpl = globa
           /* not JSON */
         }
         if (rpcErr?.message) throw classifyRpcError(method, rpcErr);
+        // RING-HUNTER hosted RPC answers { error: "<text>" } for 401 (bad key) / 402 (not Pro) / 403 (blocked method).
+        if (typeof rpcErr === 'string' && [401, 402, 403].includes(res.status)) throw new RpcError(`Hosted RPC: ${rpcErr}`, { code: res.status, retryable: false });
         throw new RpcError(`RPC HTTP ${res.status}`, { code: res.status, retryable: res.status >= 500 });
       }
       const len = Number(res.headers.get('content-length') || 0);

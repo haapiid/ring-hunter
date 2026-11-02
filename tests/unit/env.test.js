@@ -53,3 +53,12 @@ test('describeConfig: does not leak secret values', () => {
   assert.ok(!text.includes('proapi_abcdefgh123'));
   assert.ok(text.includes('set'));
 });
+
+test('USE_HOSTED_RPC: no RPC URL needed, chain ID fixed to Robinhood Chain', () => {
+  const c = buildConfig({ USE_HOSTED_RPC: 'true' });
+  assert.equal(c.useHostedRpc, true);
+  assert.equal(c.chainId, 4663);
+  assert.doesNotThrow(() => assertScanReady(c));
+  assert.equal(buildConfig({}).useHostedRpc, false);
+  assert.match(describeConfig(c).find(([k]) => k === 'ROBINHOOD_CHAIN_RPC')[1], /hosted RPC/);
+});

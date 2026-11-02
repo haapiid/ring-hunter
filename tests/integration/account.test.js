@@ -116,7 +116,8 @@ test('CSRF & input guards: wrong Origin, non-JSON body, bad address, foreign Hos
   assert.equal(await withHost('ringhunter.test', '/index.html'), 200, 'the public host (via the reverse proxy) is accepted');
   assert.equal((await api('/api/me')).status, 401);
   assert.equal((await api('/api/cli/whoami', { headers: { authorization: 'Bearer rh_short' } })).status, 401);
-  assert.equal((await api('/api/scan', { method: 'POST' })).status, 404);
+  assert.equal((await api('/api/nope', { method: 'POST' })).status, 404);
+  assert.equal((await api('/api/scan', { method: 'POST', headers: { origin: 'https://evil.example', 'content-type': 'application/json' }, body: '{}' })).status, 403, 'cross-origin cookie POST refused');
   assert.equal((await api('/api/me', { method: 'POST' })).status, 405);
   assert.equal((await api('/index.html')).status, 200, 'static pages are still served');
 });

@@ -38,6 +38,7 @@ const EnvSchema = z.object({
   AI_TIMEOUT_MS: intFrom(30_000, 1_000, 300_000),
   BLOCK_EXPLORER_API_KEY: optStr,
   RING_HUNTER_API_URL: optStr,
+  USE_HOSTED_RPC: optStr,
   MAX_INITIAL_TRANSACTIONS: intFrom(50, 5, 50),
   RPC_TIMEOUT_MS: intFrom(15_000, 1_000, 120_000),
   LOG_CHUNK_BLOCKS: intFrom(500_000, 1_000, 10_000_000),
@@ -88,7 +89,8 @@ export function buildConfig(env = process.env) {
     const local = ['localhost', '127.0.0.1'].includes(u.hostname);
     if (u.protocol !== 'https:' && !(local && u.protocol === 'http:')) throw new ConfigError('RING_HUNTER_API_URL must use https:// (http:// only for localhost).');
   }
-  let chainId = null;
+  const useHostedRpc = /^(1|true|yes)$/i.test(e.USE_HOSTED_RPC ?? '');
+  let chainId = useHostedRpc ? NETWORK.chainId : null;
   if (e.ROBINHOOD_CHAIN_ID) {
     chainId = Number(e.ROBINHOOD_CHAIN_ID);
     if (!Number.isInteger(chainId) || chainId <= 0) throw new ConfigError('ROBINHOOD_CHAIN_ID must be a positive integer.');
@@ -114,8 +116,9 @@ export function buildConfig(env = process.env) {
       groqModel: e.GROQ_MODEL,
       timeoutMs: e.AI_TIMEOUT_MS,
     }),
-    // Optional account server (ring-hunter login). Scanning never uses it.
+    // Optional account server (ring-hunter login). Scanning only uses it when the user opts into the Pro hosted RPC.
     accountApiUrl: e.RING_HUNTER_API_URL ?? DEFAULT_ACCOUNT_API_URL,
+    useHostedRpc,
     maxInitialTx: e.MAX_INITIAL_TRANSACTIONS,
     rpcTimeoutMs: e.RPC_TIMEOUT_MS,
     logChunkBlocks: e.LOG_CHUNK_BLOCKS,
@@ -129,6 +132,7 @@ export const explorerKeyNames = () => EXPLORER_KEY_ENV;
 
 /** Make sure the minimum config for a scan is present. */
 export function assertScanReady(config) {
+  if (config.useHostedRpc) return; // RPC = the account server's read-only proxy (needs ring-hunter login + Pro)
   if (!config.rpcUrl) {
     throw new ConfigError('ROBINHOOD_CHAIN_RPC is not set.', { hint: 'Run "ring-hunter init" to create the config file, then set ROBINHOOD_CHAIN_RPC.' });
   }
@@ -157,7 +161,7 @@ export function describeConfig(config) {
   const ai = aiStatus(config);
   return [
     ['Config file', loadedFrom ? loadedFrom : `not found — run "ring-hunter init" (expected: ${ENV_FILE})`],
-    ['ROBINHOOD_CHAIN_RPC', config.rpcLabel ?? 'empty'],
+    ['ROBINHOOD_CHAIN_RPC', config.useHostedRpc ? 'not used — USE_HOSTED_RPC is on (RING-HUNTER Pro hosted RPC)' : config.rpcLabel ?? 'empty'],
     ['ROBINHOOD_CHAIN_ID', config.chainId ?? 'empty'],
     ['AI_PROVIDER', config.ai.provider],
     ['GEMINI_API_KEY', filled(config.ai.geminiKey)],

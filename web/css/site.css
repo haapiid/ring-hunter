@@ -266,3 +266,40 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; overflow: hidden; 
 .acct-key .cmd code { word-break: break-all; white-space: normal; }
 .acct-note { margin-top: 22px !important; }
 @media (max-width: 560px) { .acct-steps { grid-template-columns: 1fr; } }
+
+/* ---------- RING-HUNTER Pro dashboard & shared report ---------- */
+.pill.bad { color: var(--red); background: rgba(255, 105, 97, 0.12); }
+.pill:not(.ok):not(.warn):not(.bad) { color: var(--muted); background: rgba(255, 255, 255, 0.07); }
+.acct-card.pro { margin-top: 18px; }
+.acct-card h3 { font-size: 16px; margin: 22px 0 10px; }
+.meta { color: var(--muted); font-size: 12.5px; margin-top: 3px; }
+.pro-join, .pro-block, .pro-cli { border-top: 1px solid var(--line); margin-top: 18px; }
+.pro-steps { margin: 0 0 10px 20px; display: grid; gap: 8px; font-size: 14px; color: var(--muted); }
+.pro-steps b { color: var(--text); }
+.pro-treasury { list-style: none; margin-left: -20px; }
+.pro-form { display: flex; gap: 8px; margin-bottom: 4px; }
+.pro-form input, .pro-block textarea { flex: 1; min-width: 0; width: 100%; padding: 11px 14px; border-radius: 12px; border: 1px solid var(--edge); background: var(--glass); color: var(--text); font: 13.5px var(--mono); outline: none; transition: border-color 0.3s; }
+.pro-block textarea { resize: vertical; margin-bottom: 8px; }
+.pro-form input:focus, .pro-block textarea:focus { border-color: var(--gold); }
+.pro-list { display: grid; gap: 8px; }
+.pro-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--glass); font-size: 14px; }
+.pro-row a { color: var(--gold); }
+.pro-row .pill { margin-left: 6px; }
+.pro-row-end { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+.pro-row-end .btn-sm { height: 32px; padding: 0 12px; font-size: 13px; }
+.pro-extend { margin-top: 12px; }
+.pro-extend summary { cursor: pointer; color: var(--muted); font-size: 14px; }
+.report { max-width: 760px; }
+.report h1 { font-size: clamp(30px, 5vw, 44px); margin: 4px 0 6px; }
+.report a { color: var(--gold); }
+.eyebrow-sm { font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); }
+.rep-score { margin: 14px 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.rep-score .pill { font-size: 15px; padding: 6px 12px; }
+.rep-summary { margin: 0 0 18px; line-height: 1.6; }
+.rep-list { margin: 0 0 6px 20px; display: grid; gap: 6px; font-size: 14px; color: var(--muted); }
+.rep-disclaimer { margin: 22px 0 14px !important; }
+@media (max-width: 560px) {
+  .pro-row { flex-direction: column; align-items: flex-start; }
+  .pro-row-end { justify-content: flex-start; }
+  .pro-form { flex-direction: column; }
+}

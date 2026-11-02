@@ -27,7 +27,8 @@
 | Interactive menu, per-stage progress, tables, cluster detail, tx hashes | ✅ | |
 | Export/view/delete JSON reports | ✅ | Unique file names; deletion requires confirmation |
 | Web info page (`npm run web`): guide, copy-ready commands, read-only connect wallet | ✅ | Analysis functions stay in the CLI; see section 7a |
-| Optional account (website sign-in → API key → `ring-hunter login`) | ✅ | Tested with a local server and throwaway wallets; **not yet deployed**. Scans never need it — see section 7c |
+| Optional account (website sign-in → API key → `ring-hunter login`) | ✅ | Live at https://www.ringhunter.fun. Scans never need it — see section 7c |
+| RING-HUNTER Pro (hosted scans, watchlist, Pons launch feed, hosted RPC) | ✅ / ⚠️ | Server-side extras; tested with a mock chain. Off until the operator sets a treasury/price or token — see section 7d |
 | Cluster analysis from a wallet list (menu 2) | ⚠️ | Needs `BLOCK_EXPLORER_API_KEY` |
 | Developer wallet analysis (menu 3) | ✅ / ⚠️ | Pons launches via RPC; funding sources/recipients need an explorer key |
 | Uniswap V2 / V3 pools (besides Pons → Uniswap V4) | ✅ | Factories verified on chain 4663 (2026-11-02): official Uniswap docs + bytecode + topic0 |
@@ -50,7 +51,7 @@ ring-hunter-ai/
 │   ├── web/                     # static server for the info page (npm run web)
 │   └── utils/                   # errors, redact, retry, rateLimiter, validation, logger, format
 ├── web/                         # info page + account page: index.html, account.html, css/, js/ (site, terminal demo, wallet, account)
-├── server/                      # account server for the VPS (SIWE sign-in, API keys, node:sqlite) — not in the npm package
+├── server/                      # account + Pro server for the VPS (SIWE sign-in, API keys, payments, hosted scans, node:sqlite) — not in the npm package
 ├── tests/                       # unit/, integration/, live/ (manual), fixtures/ & helpers/ (SYNTHETIC data)
 ├── scripts/check.js             # npm run check
 ├── .claude/skills/              # project skills for Claude Code
@@ -232,6 +233,41 @@ What the server stores: wallet addresses, single-use nonces, and **SHA-256 hashe
 never the keys themselves, never signatures or private keys. Sessions are HttpOnly + SameSite=Strict cookies (Secure
 on https), valid 7 days. POST requests need the site's `Origin` and a JSON body; sign-in endpoints are rate limited.
 A static-only deployment of `web/` still works — the account page then says the account server isn't available.
+
+### 7d. RING-HUNTER Pro (optional, server-side)
+
+Everything in the CLI stays free. Pro only adds things that run on the website's server:
+
+| Feature | Where | Limit |
+|---|---|---|
+| Hosted scan + report history + share link (`report.html?id=…`) | Dashboard, or `POST /api/scan` with the API key | 5 tokens per request, 50 per day |
+| Watchlist, re-scanned every 6 hours; score/level changes are flagged | Dashboard | 20 tokens |
+| New Pons v2 launches feed (factory `TokenLaunched` logs, every 5 minutes) | Dashboard | latest 100 |
+| Hosted read-only RPC for the CLI — useful when your provider blocks the public RPC | `ring-hunter scan <token> --hosted-rpc` (or `USE_HOSTED_RPC=true`) | 600 requests/min |
+
+Hosted scans use local analysis (no AI keys on the server). The hosted RPC accepts the same read-only method list as
+the CLI client — `eth_sendRawTransaction`, signing, and `debug_*` are refused — and only with a Pro API key.
+
+**How Pro is activated** (both read-only checks; the website never asks the wallet to send or sign a transaction):
+1. **Pay in ETH:** send the shown amount on Robinhood Chain from the signed-in wallet, as a plain transfer, to the
+   treasury address on the dashboard, then paste the transaction hash. The server checks: chain 4663, sender = your
+   signed-in wallet, recipient = treasury, success, amount ≥ price. Each payment is credited once (multiples of the
+   price add periods, up to 12 per transaction).
+2. **Hold the RING-HUNTER token:** a wallet with at least the configured balance (`balanceOf`, cached 10 minutes)
+   gets Pro automatically.
+
+Server settings (all optional — a feature stays off until its values are set; nothing is guessed):
+
+| Variable | Description |
+|---|---|
+| `RH_TREASURY` | 0x address that receives Pro payments |
+| `RH_PRO_PRICE_ETH` / `RH_PRO_DAYS` | Price of one period (e.g. `0.01`) and its length in days (default 30) |
+| `RH_PRO_TOKEN` / `RH_PRO_TOKEN_MIN` | Token address and minimum balance in whole tokens for holder Pro |
+| `RH_RPC_URL` | Read-only RPC for payment checks, hosted scans, and the RPC proxy (default: the public RPC) |
+| `RH_EXPLORER_KEY` | Blockscout PRO key for hosted scans (optional; otherwise the ETH funding graph is PARTIAL) |
+| `RH_HOSTED=0` | Turn hosted scans, watchlist, and the launch feed off |
+
+On the VPS put them in `/etc/ringhunter.env` (root-only; loaded by `deploy/ringhunter.service`), not in the repo.
 
 ## 8. Example token scan
 

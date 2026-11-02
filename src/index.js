@@ -36,13 +36,15 @@ Scan options:
   --json      Print the JSON report to stdout (progress to stderr)
   --no-ai     Don't call the AI provider (use local analysis)
   --save      Save the report to the reports folder in the config directory
+  --hosted-rpc
+              Use the RING-HUNTER Pro hosted read-only RPC (needs ring-hunter login)
 
 Config directory: ~/.ring-hunter (override with RING_HUNTER_HOME)
 
 Exit codes: 0 success · 1 error · 2 invalid input · 130 cancelled
 `;
 
-const BOOL_FLAGS = new Set(['--json', '--no-ai', '--save', '--help', '-h', '--version', '-v']);
+const BOOL_FLAGS = new Set(['--json', '--no-ai', '--save', '--hosted-rpc', '--help', '-h', '--version', '-v']);
 
 function parseArgs(argv) {
   const flags = new Set();
@@ -71,6 +73,7 @@ async function main() {
     return 0;
   }
   loadDotEnv();
+  if (flags.has('--hosted-rpc')) process.env.USE_HOSTED_RPC = 'true';
   const config = buildConfig(process.env);
   // The account is optional: these commands never touch the scanner, and scans never need them.
   if (command === 'login') return (await runLogin(config, args[0]), 0);

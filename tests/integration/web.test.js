@@ -37,7 +37,7 @@ test('page & assets are served with security headers', async () => {
   assert.match(res.headers['content-security-policy'], /script-src 'self'/);
   assert.equal(res.headers['x-frame-options'], 'DENY');
   for (const s of ['npm install -g ring-hunter-ai', 'ring-hunter init', 'Connect wallet', 'ring-hunter check']) assert.ok(res.text.includes(s), s);
-  for (const p of ['/css/site.css', '/js/site.js', '/js/terminal.js', '/js/wallet.js', '/js/account.js', '/account.html', '/favicon.svg']) assert.equal((await raw('GET', p)).status, 200, p);
+  for (const p of ['/css/site.css', '/js/site.js', '/js/terminal.js', '/js/wallet.js', '/js/account.js', '/account.html', '/report.html', '/js/pro.js', '/js/report.js', '/js/ui.js', '/favicon.svg']) assert.equal((await raw('GET', p)).status, 200, p);
 });
 
 test('page is info only: no API endpoints / scan functions on the server', async () => {
@@ -84,6 +84,24 @@ test('account page talks only to its own same-origin /api and keeps nothing in b
   assert.deepEqual(paths, ['/api/auth/nonce', '/api/auth/verify', '/api/key', '/api/key/revoke', '/api/logout', '/api/me']);
   assert.ok(!/https?:\/\//.test(acc), 'no absolute URLs');
   for (const bad of ['localStorage', 'sessionStorage', 'document.cookie']) assert.ok(!acc.includes(bad), bad);
+});
+
+test('Pro dashboard, report page, and shared helpers: same-origin /api only, no wallet requests, no storage', () => {
+  const src = (f) => codeOnly(jsFiles.find(([n]) => n === f)[1]);
+  const pro = src('pro.js');
+  const paths = [...new Set([...pro.matchAll(/api\('([^']+)'/g)].map((m) => m[1]))].sort();
+  assert.deepEqual(paths, ['/api/launches', '/api/pro', '/api/pro/claim', '/api/scan', '/api/scans', '/api/watch', '/api/watch/remove']);
+  assert.match(src('report.js'), /api\(`\/api\/report\?id=\$\{encodeURIComponent\(id\)\}`\)/);
+  const ui = jsFiles.find(([n]) => n === 'ui.js')[1]; // raw: codeOnly() would cut at the explorer URL's //
+  assert.match(ui, /fetch\(path,/);
+  assert.equal((ui.match(/fetch\(/g) ?? []).length, 1, 'one fetch, to a relative /api path');
+  for (const f of ['pro.js', 'report.js', 'ui.js']) {
+    const s = src(f);
+    assert.ok(!/fetch\(\s*['"`]https?:/.test(s), `${f}: no cross-origin fetch`);
+    for (const bad of ['localStorage', 'sessionStorage', 'document.cookie', 'request(', 'ethereum', 'wallet.']) assert.ok(!s.includes(bad), `${f}: ${bad}`);
+  }
+  // The only absolute URL is the public block explorer (links, not requests).
+  assert.deepEqual([...new Set([...ui.matchAll(/https?:\/\/[^'"`\s]+/g)].map((m) => m[0]))], ['https://robinhoodchain.blockscout.com']);
 });
 
 test('page data is consistent with the app config', () => {

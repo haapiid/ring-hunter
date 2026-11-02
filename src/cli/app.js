@@ -15,9 +15,17 @@ import { createHttpTransport, createRpcClient } from '../adapters/evm/rpcClient.
 import { createExplorerClient } from '../adapters/evm/explorerAdapter.js';
 import { createLabelRegistry, loadLocalLabels } from '../config/labels.js';
 import { assertScanReady, aiStatus, describeConfig } from '../config/env.js';
-import { CancelledError } from '../utils/errors.js';
+import { CancelledError, ConfigError } from '../utils/errors.js';
+import { readCredentials } from './account.js';
 import { safeErrorMessage } from '../utils/redact.js';
 import { shortAddr, toJson, tokenAmount } from '../utils/format.js';
+
+/** RING-HUNTER Pro hosted RPC: the account server's read-only JSON-RPC proxy, authorised with the saved API key. */
+function hostedRpcTransport(config) {
+  const creds = readCredentials();
+  if (!creds) throw new ConfigError('The hosted RPC needs a linked RING-HUNTER Pro account.', { hint: 'Run "ring-hunter login" first, or drop --hosted-rpc / USE_HOSTED_RPC to use your own RPC.' });
+  return createHttpTransport({ url: `${creds.apiUrl}/api/rpc`, timeoutMs: config.rpcTimeoutMs, headers: { authorization: `Bearer ${creds.apiKey}` } });
+}
 
 /** Session context: config, RPC/explorer clients, labels, and the latest report. */
 export function createContext(config) {
@@ -30,7 +38,7 @@ export function createContext(config) {
     lastWalletReport: null,
     get rpc() {
       assertScanReady(config);
-      rpc ??= createRpcClient(createHttpTransport({ url: config.rpcUrl, timeoutMs: config.rpcTimeoutMs }));
+      rpc ??= createRpcClient(config.useHostedRpc ? hostedRpcTransport(config) : createHttpTransport({ url: config.rpcUrl, timeoutMs: config.rpcTimeoutMs }));
       return rpc;
     },
     get explorer() {
@@ -292,7 +300,7 @@ export async function configCheckFlow(ctx, { interactive = true } = {}) {
   process.stdout.write('\n' + t.toString() + '\n');
 
   const results = [];
-  if (ctx.config.rpcUrl && ctx.config.chainId) {
+  if ((ctx.config.rpcUrl || ctx.config.useHostedRpc) && ctx.config.chainId) {
     const spinner = ora('Testing RPC connection…').start();
     try {
       const t0 = Date.now();

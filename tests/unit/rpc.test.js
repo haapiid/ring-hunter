@@ -113,3 +113,18 @@ test('attributeTrade: deployer sells directly to the curve (eventActor = tx.from
   assert.equal(t.trader.toLowerCase(), DEV);
   assert.equal(t.attribution, 'token-transfer-in-tx');
 });
+
+test('HTTP transport: hosted RPC sends the Bearer header and surfaces 402/401 messages; connection errors carry a DNS hint', async () => {
+  const { createHttpTransport } = await import('../../src/adapters/evm/rpcClient.js');
+  let seen;
+  const t = createHttpTransport({
+    url: 'https://hosted.example/api/rpc',
+    headers: { authorization: 'Bearer rh_test' },
+    fetchImpl: async (url, init) => ((seen = init.headers), new Response(JSON.stringify({ error: 'This is a RING-HUNTER Pro feature' }), { status: 402 })),
+  });
+  await assert.rejects(t.send('eth_chainId', []), (e) => e instanceof RpcError && e.code === 402 && /Hosted RPC: .*Pro feature/.test(e.message) && !e.retryable);
+  assert.equal(seen.authorization, 'Bearer rh_test');
+  assert.equal(seen['content-type'], 'application/json');
+  const down = createHttpTransport({ url: 'https://rpc.example', fetchImpl: async () => { throw new TypeError('fetch failed'); } });
+  await assert.rejects(down.send('eth_chainId', []), (e) => /connection failed/.test(e.message) && /DNS over HTTPS/.test(e.hint) && /--hosted-rpc/.test(e.hint));
+});
