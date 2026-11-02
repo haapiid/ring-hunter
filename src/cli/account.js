@@ -23,7 +23,7 @@ const CredentialsSchema = z.object({
 
 const keyHint = (key) => `${key.slice(0, 10)}…`;
 
-/** Base URL of the account server from RING_HUNTER_API_URL. No default: the URL is never guessed. */
+/** Base URL of the account server: RING_HUNTER_API_URL, or the official site (DEFAULT_ACCOUNT_API_URL in config/env.js). */
 export function accountApiUrl(config) {
   const url = config.accountApiUrl;
   if (!url) throw new ConfigError('RING_HUNTER_API_URL is not set.', { hint: 'Add RING_HUNTER_API_URL=<the RING-HUNTER website URL> to your config file (ring-hunter check shows where).' });

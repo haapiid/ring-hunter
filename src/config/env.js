@@ -19,6 +19,10 @@ const optStr = z
   .optional()
   .transform((v) => (v && v.trim() ? v.trim() : null));
 
+// The official RING-HUNTER website & account server (deployed and verified 2026-11-02). Used only by
+// `ring-hunter login / whoami`; RING_HUNTER_API_URL overrides it (e.g. a self-hosted server).
+export const DEFAULT_ACCOUNT_API_URL = 'https://www.ringhunter.fun';
+
 const EnvSchema = z.object({
   ROBINHOOD_CHAIN_RPC: optStr,
   ROBINHOOD_CHAIN_ID: optStr,
@@ -111,7 +115,7 @@ export function buildConfig(env = process.env) {
       timeoutMs: e.AI_TIMEOUT_MS,
     }),
     // Optional account server (ring-hunter login). Scanning never uses it.
-    accountApiUrl: e.RING_HUNTER_API_URL,
+    accountApiUrl: e.RING_HUNTER_API_URL ?? DEFAULT_ACCOUNT_API_URL,
     maxInitialTx: e.MAX_INITIAL_TRANSACTIONS,
     rpcTimeoutMs: e.RPC_TIMEOUT_MS,
     logChunkBlocks: e.LOG_CHUNK_BLOCKS,
@@ -162,7 +166,7 @@ export function describeConfig(config) {
     ['GROQ_MODEL', config.ai.groqModel ?? 'empty'],
     ['AI status', ai.ready ? `ready (${ai.provider} / ${ai.model})` : `inactive — ${ai.reason}`],
     ['BLOCK_EXPLORER_API_KEY', config.explorer ? 'set' : 'empty (ETH funding graph PARTIAL)'],
-    ['RING_HUNTER_API_URL', config.accountApiUrl ?? 'empty (account login disabled — optional)'],
+    ['RING_HUNTER_API_URL', config.accountApiUrl === DEFAULT_ACCOUNT_API_URL ? `${DEFAULT_ACCOUNT_API_URL} (default)` : config.accountApiUrl],
     ['MAX_INITIAL_TRANSACTIONS', config.maxInitialTx],
     ['RPC_TIMEOUT_MS', config.rpcTimeoutMs],
     ['LOG_CHUNK_BLOCKS', config.logChunkBlocks],

@@ -29,7 +29,7 @@ Local skills in `.claude/skills/`:
 - **The account never gates scanning.** Don't import `cli/account.js` from the scanner, and don't send the key anywhere except the account server's `/api/cli/whoami`.
 - `server/` (Node + `node:sqlite`, VPS, not in the npm package): stores only addresses, nonces, and sha256 hashes of session tokens/API keys. 127.0.0.1 behind a TLS proxy; Origin + JSON checks on POST; rate limits.
 - Web signing rule: `personal_sign` appears exactly once, in `wallet.signIn`, after the checks that bind the message to this site/address/chain 4663 (enforced by `tests/integration/web.test.js`). Never add transactions, `eth_sign`, typed-data signatures, or approvals.
-- No account server URL is ever guessed: `RING_HUNTER_API_URL` must be set by the user.
+- Account server URL: `DEFAULT_ACCOUNT_API_URL` in `src/config/env.js` = https://www.ringhunter.fun (the user's own deployed site, verified 2026-11-02); `RING_HUNTER_API_URL` overrides it. Never point it at any other host.
 
 ## Distribution
 - Shipped as a global npm CLI: `npm install -g ring-hunter-ai` → `ring-hunter` command (`bin` in package.json, `files` whitelist: `src/` without `src/web/`, `.env.example`, README). Not published yet; publishing needs the user's npm account and explicit go-ahead.

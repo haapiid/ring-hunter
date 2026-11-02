@@ -87,10 +87,7 @@ test('bad keys: malformed → exit 2, unknown/revoked → exit 1, nothing saved'
   assert.equal((await run(['login', key])).status, 1);
 });
 
-test('login needs RING_HUNTER_API_URL; scanning does not need an account', async () => {
-  const r = await run(['login', 'rh_' + 'A'.repeat(43)], { RING_HUNTER_API_URL: '' });
-  assert.equal(r.status, 1);
-  assert.match(r.stderr, /RING_HUNTER_API_URL is not set/);
+test('login is optional and documented in --help', async () => {
   // --help still lists scan as the main use; login is marked optional.
   assert.match((await run(['--help'])).stdout, /login \[API_KEY\]\s+Link this CLI to your website account \(optional\)/);
 });

@@ -35,6 +35,15 @@ test('aiStatus: model is required, never guessed', () => {
   assert.equal(aiStatus(buildConfig({ AI_PROVIDER: 'groq', GROQ_API_KEY: 'k'.repeat(30), GROQ_MODEL: 'some-model' })).ready, true);
 });
 
+test('account server: official site by default, RING_HUNTER_API_URL overrides, http only for localhost', () => {
+  const base = { ROBINHOOD_CHAIN_RPC: 'https://rpc.mainnet.chain.robinhood.com', ROBINHOOD_CHAIN_ID: '4663' };
+  assert.equal(buildConfig(base).accountApiUrl, 'https://www.ringhunter.fun');
+  assert.equal(buildConfig({ ...base, RING_HUNTER_API_URL: '' }).accountApiUrl, 'https://www.ringhunter.fun');
+  assert.equal(buildConfig({ ...base, RING_HUNTER_API_URL: 'https://rh.example.org' }).accountApiUrl, 'https://rh.example.org');
+  assert.equal(buildConfig({ ...base, RING_HUNTER_API_URL: 'http://127.0.0.1:8787' }).accountApiUrl, 'http://127.0.0.1:8787');
+  assert.throws(() => buildConfig({ ...base, RING_HUNTER_API_URL: 'http://rh.example.org' }), /https/);
+});
+
 test('describeConfig: does not leak secret values', () => {
   const key = 'gsk_THISISAREALLOOKINGKEY1234567890';
   const c = buildConfig({ ROBINHOOD_CHAIN_RPC: 'https://node.example.com/v2/PRIVATEKEY99', ROBINHOOD_CHAIN_ID: '4663', GROQ_API_KEY: key, BLOCK_EXPLORER_API_KEY: 'proapi_abcdefgh123' });

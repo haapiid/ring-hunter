@@ -107,7 +107,7 @@ Dependencies (pinned versions): `ethers`, `zod`, `chalk`, `figlet`, `ora`, `cli-
 | `GROQ_API_KEY` / `GROQ_MODEL` | – | Both required if `AI_PROVIDER=groq` |
 | `AI_TIMEOUT_MS` | – | Default 30000 |
 | `BLOCK_EXPLORER_API_KEY` | – (recommended) | Blockscout PRO API key from https://dev.blockscout.com (free tier: 5 req/sec). Enables native ETH funding, non-Pons creators, menu 2 |
-| `RING_HUNTER_API_URL` | – | URL of the RING-HUNTER website, only for `ring-hunter login / whoami`. https only (http allowed for localhost). Empty = account features off |
+| `RING_HUNTER_API_URL` | – | Account server for `ring-hunter login / whoami` only. Empty = the official site `https://www.ringhunter.fun`. Set it only for a self-hosted server (https; http allowed for localhost) |
 | `MAX_INITIAL_TRANSACTIONS` | – | 5–50, default 50 |
 | `RPC_TIMEOUT_MS` | – | Default 15000 |
 | `LOG_CHUNK_BLOCKS` | – | Initial `eth_getLogs` chunk size (adaptive), default 500000 |
@@ -209,7 +209,7 @@ The account only identifies you; every scan feature works exactly the same witho
    and grants no approval. The page refuses to sign any message that isn't for this site and the connected address.
 3. Click **Create API key**. The key (`rh_…`) is shown **once**; the dashboard afterwards shows only its prefix and
    when the CLI last used it. You can create a new key (the old one stops working) or revoke it.
-4. In the terminal: set `RING_HUNTER_API_URL` in `~/.ring-hunter/.env` to the site's URL, then run
+4. In the terminal run
    `ring-hunter login` and paste the key (or `ring-hunter login <KEY>`). It is saved in
    `~/.ring-hunter/credentials.json` (file mode 0600) and masked in all output. `ring-hunter whoami` checks it,
    `ring-hunter logout` removes it.
@@ -293,7 +293,7 @@ Saved to `~/.ring-hunter/reports/<SYMBOL>-<address8>-<timestamp>.json` (never ov
 ```json
 {
   "schemaVersion": 1,
-  "app": { "name": "RING-HUNTER AI", "version": "0.1.0" },
+  "app": { "name": "RING-HUNTER AI", "version": "0.1.1" },
   "analyzedAt": "2026-10-27T…Z",
   "network": { "name": "Robinhood Chain", "chainId": 4663, "explorerUrl": "https://robinhoodchain.blockscout.com" },
   "source": { "rpc": "https://host (no path/key)", "explorer": null, "latestBlock": 98599491, "holderBlockRange": { "fromBlock": 0, "toBlock": 0 } },
