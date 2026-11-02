@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RING-HUNTER AI</title>
+  <meta name="description" content="Developer Trust & Insider Ring Scanner — a read-only CLI that tracks token insider rings on Robinhood Chain.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
+  <link rel="stylesheet" href="css/site.css">
+  <script type="module" src="js/site.js"></script>
+</head>
+<body>
+  <header id="hdr">
+    <div class="in">
+      <a class="brand" href="#top" aria-label="RING-HUNTER AI">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="10.5" fill="none" stroke="currentColor" stroke-width="2.6"/><circle cx="16" cy="16" r="3.6" fill="var(--gold)"/><path d="M16 2.5v5M16 24.5v5M2.5 16h5M24.5 16h5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
+        RING-HUNTER <span class="tag">AI</span>
+      </a>
+      <nav aria-label="Navigation">
+        <a href="#start">Start</a>
+        <a href="#scan">How it works</a>
+        <a href="#cluster">Clusters</a>
+        <a href="#score">Score</a>
+        <a href="#ai">AI</a>
+        <a href="#account">Account</a>
+        <a href="#launchpad">Launchpad</a>
+        <a href="#commands">Commands</a>
+      </nav>
+      <button class="wallet-btn" id="walletBtn" type="button" aria-haspopup="dialog">Connect wallet</button>
+    </div>
+  </header>
+
+  <div class="page">
+    <main class="flow">
+
+      <section id="top" data-scene="hero">
+        <div class="badge fade"><span class="gold">✦</span> Read-only CLI · Robinhood Chain</div>
+        <h1 class="rise"><span><span>Track insider rings.</span></span><span><span class="dim-h">Before you buy in.</span></span></h1>
+        <p class="fade">RING-HUNTER AI reads a token's on-chain data — <strong>who launched it</strong>, <strong>who bought first</strong>, and <strong>where their funds came from</strong> — then flags wallets that move together. Everything runs from your own terminal.</p>
+        <div class="actions fade d2">
+          <a class="btn gold-btn" href="#start">Start in one minute <i class="i-arrow"></i></a>
+          <a class="btn line" href="#scan">See how it works</a>
+        </div>
+        <ul class="ticks-row fade d3">
+          <li><b>11 stages</b><span>real progress, not fake animation</span></li>
+          <li><b>0–100</b><span>deterministic, auditable score</span></li>
+          <li><b>Zero keys</b><span>no private keys, no transactions</span></li>
+        </ul>
+      </section>
+
+      <section id="start" data-scene="install">
+        <h2 class="rise"><span><span>Ready in</span></span><span><span>one minute.</span></span></h2>
+        <p class="fade">Install once, use it from any folder — Windows, macOS, or Linux. Run these in your terminal. Click to copy.</p>
+        <ol class="steps fade d2">
+          <li><div><b>Have Node.js 22.13 or newer</b><span>Get it from nodejs.org if <code>node -v</code> shows an older version.</span><button class="cmd" type="button" data-copy="node -v"><code>node -v</code></button></div></li>
+          <li><div><b>Install RING-HUNTER</b><span>Adds the <code>ring-hunter</code> command globally.</span><button class="cmd" type="button" data-copy="npm install -g ring-hunter-ai"><code>npm install -g ring-hunter-ai</code></button></div></li>
+          <li><div><b>Create your config</b><span>Writes <code>~/.ring-hunter/.env</code> with the public RPC + chain ID 4663. Never overwrites an existing file.</span><button class="cmd" type="button" data-copy="ring-hunter init"><code>ring-hunter init</code></button></div></li>
+          <li><div><b>Check the connection</b><span>Confirms the RPC really is Robinhood Chain (4663).</span><button class="cmd" type="button" data-copy="ring-hunter check"><code>ring-hunter check</code></button></div></li>
+          <li><div><b>Scan your first token</b><span>The PXT1 test token — safe for a first try.</span><button class="cmd" type="button" data-copy="ring-hunter scan 0xB6ea66422c14F64Cf66FaE50F7d4914D4bAaC09B --no-ai"><code>ring-hunter scan 0xB6ea…C09B --no-ai</code></button></div></li>
+        </ol>
+      </section>
+
+      <section id="scan" data-scene="scan">
+        <h2 class="rise"><span><span>One command.</span></span><span><span>Eleven stages.</span></span></h2>
+        <p class="fade">Open the interactive menu with <code>ring-hunter</code>, or scan a token directly. Each stage lights up only when it has actually finished: connection, network check, token contract, creator, pools, early buyers, holders, funding graph, clusters, contract, score.</p>
+        <div class="fade d2">
+          <button class="cmd big" type="button" data-copy="ring-hunter"><code><span class="d">$</span> ring-hunter</code></button>
+          <button class="cmd big" type="button" data-copy="ring-hunter scan 0xB6ea66422c14F64Cf66FaE50F7d4914D4bAaC09B --no-ai"><code><span class="d">$</span> ring-hunter scan 0xB6ea…C09B --no-ai</code></button>
+          <p class="small">The address above is the <strong>PXT1</strong> test token — safe for a first try.</p>
+        </div>
+        <div class="flags fade d3">
+          <div><code>--no-ai</code><span>use local analysis, no AI provider</span></div>
+          <div><code>--save</code><span>save the report to <code>~/.ring-hunter/reports</code></span></div>
+          <div><code>--json</code><span>print the JSON report to stdout</span></div>
+        </div>
+      </section>
+
+      <section id="cluster" data-scene="cluster">
+        <h2 class="rise"><span><span>Wallets that</span></span><span><span>move together.</span></span></h2>
+        <p class="fade">Early buyers are linked by <strong>a shared funding source</strong>, <strong>direct transfers</strong>, <strong>ties to the deployer</strong>, and <strong>closely timed buys</strong>. Exchanges, bridges, and hot wallets are excluded to avoid false positives.</p>
+        <ul class="labels fade d2">
+          <li><span class="chip red">STRONG_CORRELATION</span><span>several strong indicators at once — often includes the deployer</span></li>
+          <li><span class="chip amber">POSSIBLE_CLUSTER</span><span>funding indicators worth checking</span></li>
+          <li><span class="chip blue">OBSERVED_LINK</span><span>one observed connection</span></li>
+          <li><span class="chip grey">UNVERIFIED</span><span>timing coincidence only</span></li>
+        </ul>
+        <p class="small fade d3">Every cluster comes with tx-hash evidence and alternative explanations. On-chain correlation is <strong>not</strong> proof of shared ownership.</p>
+      </section>
+
+      <section id="score" data-scene="score">
+        <h2 class="rise"><span><span>A score you</span></span><span><span>can audit.</span></span></h2>
+        <p class="fade">Six components with fixed weights. Missing data is <strong>never treated as safe</strong> — the component is excluded and coverage drops.</p>
+        <div class="weights fade d2" id="weights"></div>
+        <div class="bands fade d3">
+          <div><b class="t-red">70+</b><span>HIGH OBSERVED RISK</span></div>
+          <div><b class="t-amber">40+</b><span>MODERATE RISK</span></div>
+          <div><b class="t-green">&lt;40</b><span>LOWER OBSERVED RISK</span></div>
+          <div><b class="t-grey">&lt;50%</b><span>coverage → INSUFFICIENT DATA</span></div>
+        </div>
+      </section>
+
+      <section id="ai" data-scene="ai">
+        <h2 class="rise"><span><span>AI writes.</span></span><span><span>The engine counts.</span></span></h2>
+        <p class="fade">Gemini or Groq only drafts the summary. Every address, score, and percentage the AI writes is checked against the engine's data — if anything doesn't match, the summary is rejected and the local analysis is used. The app runs fully even without an API key.</p>
+        <pre class="env fade d2"><span class="d"># ~/.ring-hunter/.env  — fill in one of them (optional)</span>
+AI_PROVIDER=<span class="y">groq</span>
+GROQ_API_KEY=<span class="d">…your key…</span>
+GROQ_MODEL=<span class="d">…a model name from your account…</span>
+
+<span class="d"># strongly recommended: ETH funding sources between wallets</span>
+BLOCK_EXPLORER_API_KEY=<span class="d">…free at dev.blockscout.com…</span></pre>
+        <p class="small fade d3">API keys are never printed and never sent to the AI.</p>
+      </section>
+
+      <section id="wallet" data-scene="wallet">
+        <h2 class="rise"><span><span>Connect a wallet.</span></span><span><span>Get the commands.</span></span></h2>
+        <p class="fade">Connecting only <strong>reads your address</strong> — no transactions. The page then builds CLI commands ready to copy.</p>
+        <div class="wallet-card fade d2" id="walletCard"></div>
+        <div class="builder fade d3">
+          <label for="tokenIn">Token address to scan</label>
+          <input id="tokenIn" type="text" placeholder="0x…" autocomplete="off" spellcheck="false">
+          <div class="builder-out" id="builderOut"></div>
+        </div>
+      </section>
+
+      <section id="account" data-scene="account">
+        <h2 class="rise"><span><span>Link your CLI.</span></span><span><span>Optional.</span></span></h2>
+        <p class="fade">Tie the <code>ring-hunter</code> command on your computer to your wallet. <strong>Every scan works without it</strong> — the account only identifies you.</p>
+        <ol class="steps fade d2">
+          <li><div><b>Connect &amp; sign in</b><span>On the account page your wallet signs one plain-text message (Sign-In with Ethereum). Not a transaction, no gas, no token approval.</span><a class="cmd link" href="account.html"><code>Open the account page →</code></a></div></li>
+          <li><div><b>Create your API key</b><span>The dashboard shows it once — store it like a password. You can rotate or revoke it any time.</span></div></li>
+          <li><div><b>Log in from the terminal</b><span>Paste the key when asked; it is saved in <code>~/.ring-hunter</code>.</span><button class="cmd" type="button" data-copy="ring-hunter login"><code>ring-hunter login</code></button></div></li>
+        </ol>
+        <p class="small fade d3">Check it with <code>ring-hunter whoami</code>; remove it with <code>ring-hunter logout</code>. The site never asks for your seed phrase or private key.</p>
+      </section>
+
+      <section id="launchpad" data-scene="launchpad">
+        <h2 class="rise"><span><span>Launch on Pons.</span></span><span><span>Scan before you buy.</span></span></h2>
+        <p class="fade">Tokens launched on the Robinhood side of the launchpad use <b>Pons v2</b> — the same factory <code>0x7eD5…EC7e</code> that RING-HUNTER reads. So you can check any Pons token before you buy it.</p>
+        <ol class="steps fade d2">
+          <li><div><b>Find a token on the launchpad</b><span>Switch the launchpad to the Robinhood network to see Pons tokens.</span></div></li>
+          <li><div><b>Copy its address</b><span>The <code>0x…</code> address on the token's page.</span></div></li>
+          <li><div><b>Scan it</b><span>Paste the address after <code>scan</code>.</span><button class="cmd" type="button" data-copy="ring-hunter scan <tokenAddress>"><code>ring-hunter scan &lt;tokenAddress&gt;</code></button></div></li>
+        </ol>
+        <p class="small fade d3"><b>Different roles:</b> RING-HUNTER only reads. The launchpad <em>signs transactions</em> through your wallet (launch, buy, sell, claim) — review every confirmation in your wallet. Solana tokens (base58 addresses) can't be scanned by RING-HUNTER.</p>
+      </section>
+
+      <section id="commands" data-scene="commands">
+        <h2 class="rise"><span><span>Every command,</span></span><span><span>in one place.</span></span></h2>
+        <div class="table fade">
+          <div class="row"><button class="cmd" type="button" data-copy="ring-hunter"><code>ring-hunter</code></button><span>Interactive menu: scan, wallet clusters, developer wallet, reports, export, config check</span></div>
+          <div class="row"><button class="cmd" type="button" data-copy="ring-hunter scan <tokenAddress>"><code>ring-hunter scan &lt;address&gt;</code></button><span>Non-interactive scan (add <code>--save</code>, <code>--json</code>, <code>--no-ai</code>)</span></div>
+          <div class="row"><button class="cmd" type="button" data-copy="ring-hunter init"><code>ring-hunter init</code></button><span>Create the config file in <code>~/.ring-hunter</code></span></div>
+          <div class="row"><button class="cmd" type="button" data-copy="ring-hunter check"><code>ring-hunter check</code></button><span>Check config &amp; RPC connection, and show where the config file is</span></div>
+          <div class="row"><button class="cmd" type="button" data-copy="ring-hunter login"><code>ring-hunter login</code></button><span>Link the CLI to your account with the API key from the dashboard (optional)</span></div>
+          <div class="row"><button class="cmd" type="button" data-copy="ring-hunter whoami"><code>ring-hunter whoami</code></button><span>Show which wallet the CLI is linked to</span></div>
+          <div class="row"><button class="cmd" type="button" data-copy="ring-hunter logout"><code>ring-hunter logout</code></button><span>Remove the API key from this computer (revoke it on the dashboard to disable it everywhere)</span></div>
+          <div class="row"><button class="cmd" type="button" data-copy="npm update -g ring-hunter-ai"><code>npm update -g ring-hunter-ai</code></button><span>Update to the latest version (your config and reports are kept)</span></div>
+          <div class="row"><button class="cmd" type="button" data-copy="npm uninstall -g ring-hunter-ai"><code>npm uninstall -g ring-hunter-ai</code></button><span>Remove the command (<code>~/.ring-hunter</code> stays; delete it yourself if you want)</span></div>
+        </div>
+        <div class="faq fade d2">
+          <details><summary><span>“RPC connection failed: fetch failed”</span></summary><p>Check your internet, then run <code>ring-hunter check</code>. The public RPC is sometimes busy — try again shortly, or set a private RPC in <code>ROBINHOOD_CHAIN_RPC</code>. Some internet providers block the RPC domain through their DNS — and they intercept plain DNS too, so only changing the DNS numbers to 1.1.1.1 often isn't enough. Turn on <b>encrypted DNS</b> instead. Windows 11: Settings → Network &amp; internet → your connection → DNS server assignment → Edit → Manual → <code>1.1.1.1</code> / <code>1.0.0.1</code> with <b>DNS over HTTPS: On</b>. macOS/Linux/phones: install Cloudflare's 1.1.1.1 app or use a VPN. A private RPC (Alchemy, Chainstack) on another domain also works.</p></details>
+          <details><summary><span>“ring-hunter” is not recognized</span></summary><p>Close and reopen the terminal after installing. If it still fails, check that npm's global folder is on your PATH: <code>npm prefix -g</code> shows where it is.</p></details>
+          <details><summary><span>ETH funding source shows <code>NONE</code></span></summary><p>Native ETH transfers aren't recorded in logs. Set <code>BLOCK_EXPLORER_API_KEY</code> (free) for a complete funding graph; without it, confidence is capped at MEDIUM.</p></details>
+          <details><summary><span>Menu doesn't appear / “requires a terminal (TTY)”</span></summary><p>Run <code>ring-hunter</code> from a regular terminal, not with redirected output. For automation, use <code>ring-hunter scan &lt;address&gt; --json</code>.</p></details>
+          <details><summary><span>AI summary isn't used</span></summary><p>Set <code>AI_PROVIDER</code>, the API key, <em>and</em> the model name in <code>~/.ring-hunter/.env</code>. If the quota runs out or the answer fails validation, the local analysis is used automatically.</p></details>
+        </div>
+      </section>
+
+    </main>
+
+    <aside class="stage" aria-label="Sample terminal output">
+      <div class="window">
+        <div class="bar"><i></i><i></i><i></i><span id="termTitle">ring-hunter</span></div>
+        <pre class="term" id="term" aria-live="off"></pre>
+      </div>
+      <div class="ticks" id="ticks" aria-hidden="true"></div>
+      <p class="stage-note">Sample output from a real scan of the PXT1 test token.</p>
+    </aside>
+  </div>
+
+  <footer>
+    <div class="foot-in">
+      <p>RING-HUNTER AI is a heuristic analysis aid based on on-chain data. Its results are not a formal security audit, not proof of wallet identity or ownership, not a definitive rug-pull prediction, and not financial advice.</p>
+      <p class="dim">Read-only · Robinhood Chain (chain ID 4663) · <a href="https://robinhoodchain.blockscout.com" target="_blank" rel="noopener noreferrer">Explorer ↗</a></p>
+    </div>
+    <div class="wordmark" id="wordmark" aria-hidden="true"><span>RING</span><span>HUNTER</span></div>
+  </footer>
+
+  <div class="wm-backdrop" id="wmBackdrop"></div>
+  <div class="wm" id="wm" role="dialog" aria-modal="true" aria-labelledby="wmTitle">
+    <div class="wm-head"><b id="wmTitle">Connect wallet</b><button class="wm-close" id="wmClose" type="button" aria-label="Close">×</button></div>
+    <div id="wmBody"></div>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

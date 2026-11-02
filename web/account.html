@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RING-HUNTER Account</title>
+  <meta name="description" content="Optional RING-HUNTER account: sign in with your wallet and get an API key for the CLI.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
+  <link rel="stylesheet" href="css/site.css">
+  <script type="module" src="js/account.js"></script>
+</head>
+<body class="acct-page">
+  <header class="scrolled">
+    <div class="in">
+      <a class="brand" href="index.html" aria-label="RING-HUNTER AI home">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="10.5" fill="none" stroke="currentColor" stroke-width="2.6"/><circle cx="16" cy="16" r="3.6" fill="var(--gold)"/><path d="M16 2.5v5M16 24.5v5M2.5 16h5M24.5 16h5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
+        RING-HUNTER <span class="tag">AI</span>
+      </a>
+      <nav aria-label="Navigation"><a href="index.html">Home</a><a href="index.html#commands">Commands</a></nav>
+    </div>
+  </header>
+
+  <main class="acct">
+    <h1>Your account</h1>
+    <p class="dim">Optional. Every scan works without an account — linking one just ties the CLI on your computer to your wallet address.</p>
+
+    <ol class="acct-steps" aria-label="Sign-in steps">
+      <li id="stepConnect"><b>1 · Connect wallet</b><span>Reads your address.</span></li>
+      <li id="stepSign"><b>2 · Sign in</b><span>One plain-text message. Not a transaction, no gas.</span></li>
+      <li id="stepKey"><b>3 · Get your API key</b><span>Then run <code>ring-hunter login</code>.</span></li>
+    </ol>
+
+    <section class="acct-card" id="acctBody" aria-live="polite"></section>
+
+    <p class="small dim acct-note">What signing in does: your wallet signs a short text that names this site, your address, a one-time code, and an expiry time. It cannot move funds or approve tokens. This site never asks for your seed phrase or private key.</p>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

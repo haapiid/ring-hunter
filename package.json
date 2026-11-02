@@ -1,0 +1,53 @@
+{
+  "name": "ring-hunter-ai",
+  "version": "0.1.0",
+  "description": "RING-HUNTER AI — Developer Trust & Insider Ring Scanner (read-only, Robinhood Chain)",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "ring-hunter": "src/index.js"
+  },
+  "files": [
+    "src/",
+    "!src/web/",
+    ".env.example",
+    "README.md"
+  ],
+  "keywords": [
+    "robinhood-chain",
+    "pons",
+    "token-scanner",
+    "insider-detection",
+    "wallet-cluster",
+    "rug-pull",
+    "evm",
+    "cli",
+    "read-only"
+  ],
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "scan": "node src/index.js scan",
+    "web": "node src/web/index.js --open",
+    "dev": "node --watch-path=src --watch-path=web src/web/index.js",
+    "test": "node --test \"tests/unit/**/*.test.js\"",
+    "test:integration": "node --test \"tests/integration/**/*.test.js\"",
+    "test:live": "node --test \"tests/live/**/*.test.js\"",
+    "check": "node scripts/check.js",
+    "server": "node server/index.js"
+  },
+  "dependencies": {
+    "@google/genai": "2.28.0",
+    "@inquirer/prompts": "8.7.3",
+    "chalk": "6.0.1",
+    "cli-progress": "3.12.0",
+    "cli-table3": "0.6.5",
+    "ethers": "6.17.0",
+    "figlet": "1.12.0",
+    "groq-sdk": "1.6.0",
+    "ora": "9.4.1",
+    "zod": "4.6.7"
+  }
+}

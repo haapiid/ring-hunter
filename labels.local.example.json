@@ -1,0 +1,11 @@
+{
+  "_catatan": "Salin menjadi labels.local.json lalu isi dengan alamat yang SUDAH Anda verifikasi sendiri (mis. hot wallet exchange atau bridge). Alamat di bawah hanyalah contoh format dan bukan alamat nyata.",
+  "labels": [
+    {
+      "address": "0x0000000000000000000000000000000000000001",
+      "label": "Contoh: Exchange Hot Wallet",
+      "kind": "EXCHANGE",
+      "source": "Tulis sumber verifikasi Anda di sini"
+    }
+  ]
+}
