@@ -34,7 +34,7 @@ function table(rows, head = null) {
 }
 
 function banner() {
-  return [...BANNER.map((t) => ({ s: [['gd', t]], cls: 'bn' })),L(['m', '  AI'], ['d', ' · Developer Trust & Insider Ring Scanner v0.1.1']), L(['d', '  Read-only · Robinhood Chain (4663)']), blank];
+  return [...BANNER.map((t) => ({ s: [['gd', t]], cls: 'bn' })),L(['m', '  AI'], ['d', ' · Developer Trust & Insider Ring Scanner v0.1.2']), L(['d', '  Read-only · Robinhood Chain (4663)']), blank];
 }
 
 export const SCENES = {

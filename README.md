@@ -329,7 +329,7 @@ Saved to `~/.ring-hunter/reports/<SYMBOL>-<address8>-<timestamp>.json` (never ov
 ```json
 {
   "schemaVersion": 1,
-  "app": { "name": "RING-HUNTER AI", "version": "0.1.1" },
+  "app": { "name": "RING-HUNTER AI", "version": "0.1.2" },
   "analyzedAt": "2026-10-27T…Z",
   "network": { "name": "Robinhood Chain", "chainId": 4663, "explorerUrl": "https://robinhoodchain.blockscout.com" },
   "source": { "rpc": "https://host (no path/key)", "explorer": null, "latestBlock": 98599491, "holderBlockRange": { "fromBlock": 0, "toBlock": 0 } },

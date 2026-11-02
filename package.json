@@ -1,6 +1,6 @@
 {
   "name": "ring-hunter-ai",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "RING-HUNTER AI — Developer Trust & Insider Ring Scanner (read-only, Robinhood Chain)",
   "license": "MIT",
   "type": "module",

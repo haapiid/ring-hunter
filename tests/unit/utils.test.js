@@ -74,3 +74,8 @@ test('format helpers', () => {
   assert.equal(tokenAmount(1234567n * 10n ** 18n, 18, 2), '1,234,567');
   assert.equal(shortAddr('0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e'), '0x7eD5…EC7e');
 });
+
+test('normalizeAddress: a bare 40-hex address gets 0x; other malformed input is still rejected', () => {
+  assert.equal(normalizeAddress('7ed598bcef8bd9edd8c97a195c6d13f40801ec7e'), '0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e');
+  for (const bad of ['x0x7ed598bcef8bd9edd8c97a195c6d13f40801ec7e', '7ed598bcef8bd9edd8c97a195c6d13f40801ec7', '0X7ed598bcef8bd9edd8c97a195c6d13f40801ec7e1']) assert.throws(() => normalizeAddress(bad), InputError, bad);
+});
