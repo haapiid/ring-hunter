@@ -4,9 +4,7 @@ import { InputError } from './errors.js';
 
 /** Normalize an EVM address to checksum format. Throws InputError if invalid. */
 export function normalizeAddress(input, label = 'Address') {
-  let s = typeof input === 'string' ? input.trim() : '';
-  // A bare 40-hex address (copied without "0x") is unambiguous: accept it. Anything else is never guessed.
-  if (/^[0-9a-fA-F]{40}$/.test(s)) s = '0x' + s;
+  const s = typeof input === 'string' ? input.trim() : '';
   if (!/^0x[0-9a-fA-F]{40}$/.test(s)) {
     throw new InputError(`${label} is invalid: must be 0x followed by 40 hexadecimal characters.`);
   }

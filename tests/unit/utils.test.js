@@ -75,7 +75,6 @@ test('format helpers', () => {
   assert.equal(shortAddr('0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e'), '0x7eD5…EC7e');
 });
 
-test('normalizeAddress: a bare 40-hex address gets 0x; other malformed input is still rejected', () => {
-  assert.equal(normalizeAddress('7ed598bcef8bd9edd8c97a195c6d13f40801ec7e'), '0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e');
-  for (const bad of ['x0x7ed598bcef8bd9edd8c97a195c6d13f40801ec7e', '7ed598bcef8bd9edd8c97a195c6d13f40801ec7', '0X7ed598bcef8bd9edd8c97a195c6d13f40801ec7e1']) assert.throws(() => normalizeAddress(bad), InputError, bad);
+test('normalizeAddress: without "0x" or with a stray prefix the address is rejected (never guessed)', () => {
+  for (const bad of ['7ed598bcef8bd9edd8c97a195c6d13f40801ec7e', 'x0x7ed598bcef8bd9edd8c97a195c6d13f40801ec7e', '0x7ed598bcef8bd9edd8c97a195c6d13f40801ec7']) assert.throws(() => normalizeAddress(bad), InputError, bad);
 });
