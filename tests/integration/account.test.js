@@ -54,7 +54,7 @@ test('sign-in → session cookie → API key shown once → CLI whoami with the 
   for (const attr of ['HttpOnly', 'SameSite=Strict', 'Secure', 'Path=/']) assert.ok(setCookie.includes(attr), attr);
 
   let me = await (await api('/api/me', { cookie })).json();
-  assert.deepEqual(me, { address: w.address, apiKey: null });
+  assert.deepEqual(me, { address: w.address, apiKey: null, admin: false });
 
   const created = await (await api('/api/key', { method: 'POST', cookie })).json();
   assert.match(created.apiKey, API_KEY_RE);

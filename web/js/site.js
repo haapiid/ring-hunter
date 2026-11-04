@@ -291,6 +291,32 @@ function renderBuilder() {
 }
 tokenIn.addEventListener('input', renderBuilder);
 
+// ---------- Official token (set by the site admin on the account server; hidden when unset or on a static host) ----------
+async function renderOfficialToken() {
+  const box = $('#officialToken');
+  let t;
+  try {
+    const res = await fetch('/api/token', { credentials: 'omit' });
+    t = res.ok ? (await res.json()).token : null;
+  } catch {
+    t = null;
+  }
+  if (!t || !ADDRESS_RE.test(t.address ?? '')) return;
+  box.append(
+    el('p', { class: 'lbl' }, el('span', { class: 'gold' }, '✦'), ` Official token · ${t.symbol ? `$${t.symbol}` : 'RING-HUNTER'}${t.name ? ` (${t.name})` : ''}`),
+    el('button', { class: 'cmd', type: 'button', 'data-copy': t.address, 'aria-label': 'Copy the official contract address' }, el('code', {}, t.address)),
+    el(
+      'div',
+      { class: 'token-ca-links' },
+      el('a', { href: `${EXPLORER}/token/${t.address}`, target: '_blank', rel: 'noopener noreferrer' }, 'View on explorer ↗'),
+      el('button', { class: 'linkish', type: 'button', 'data-copy': `ring-hunter scan ${t.address}` }, 'Copy scan command'),
+    ),
+    el('p', { class: 'small dim' }, 'This is the only official contract address. Any other “RING-HUNTER” token is not ours. Not financial advice.'),
+  );
+  box.hidden = false;
+}
+renderOfficialToken();
+
 // ---------- Wallet state sync ----------
 function syncWallet() {
   const st = wallet.state;

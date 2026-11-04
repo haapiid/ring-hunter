@@ -194,8 +194,75 @@ async function renderDashboard(newKey = null) {
     ),
     line,
     el('p', { class: 'small dim' }, 'Check the link from your terminal any time with ring-hunter whoami.'),
+    me.admin ? await tokenAdmin() : null,
   );
   mountPro($('#proBody'), { address: me.address, hasKey: !!k });
+}
+
+// ---------- Admin only: the official token shown on the homepage ----------
+async function tokenAdmin() {
+  const box = el('div', { class: 'acct-admin' });
+  const line = msgLine();
+  const input = el('input', { type: 'text', placeholder: '0x… token contract address (CA)', spellcheck: 'false', autocomplete: 'off', 'aria-label': 'Official token contract address' });
+  const current = el('div', { class: 'wm-rows' });
+  const show = (t) => {
+    current.textContent = '';
+    current.append(
+      t
+        ? [
+            el('div', {}, el('span', {}, 'On the homepage'), el('b', {}, t.symbol ? `$${t.symbol}` : '?', t.name ? ` · ${t.name}` : '')),
+            el('div', {}, el('span', {}, 'Address'), el('b', { class: 'mono' }, short(t.address))),
+            el('div', {}, el('span', {}, 'Set'), el('span', {}, when(t.setAt))),
+          ]
+        : el('div', {}, el('span', {}, 'On the homepage'), el('span', { class: 'pill warn' }, 'nothing yet (panel hidden)')),
+    );
+    clear.hidden = !t;
+  };
+  const save = async (ev, address) => {
+    const b = ev.currentTarget;
+    b.disabled = true;
+    line.className = 'wm-msg';
+    line.textContent = address ? 'Checking the contract on Robinhood Chain…' : 'Removing…';
+    try {
+      const r = await api('/api/admin/token', { address });
+      show(r.token);
+      input.value = '';
+      line.textContent = r.token ? `Live on the homepage: $${r.token.symbol}. Check that the symbol and name are right.` : 'Removed — the homepage panel is hidden.';
+    } catch (e) {
+      showError(line, e);
+    }
+    b.disabled = false;
+  };
+  const clear = el('button', { class: 'btn-sm', type: 'button', onclick: (ev) => confirm('Hide the official token panel on the homepage?') && save(ev, null) }, 'Remove');
+  const setBtn = el(
+    'button',
+    {
+      class: 'btn-sm gold',
+      type: 'button',
+      onclick: (ev) => {
+        const v = input.value.trim();
+        if (!/^0x[0-9a-fA-F]{40}$/.test(v)) return showError(line, new Error('Paste the contract address: 0x followed by 40 hex characters.'));
+        if (confirm(`Show ${v} as the official RING-HUNTER token on the homepage?`)) save(ev, v);
+      },
+    },
+    'Publish on homepage',
+  );
+  let t = null;
+  try {
+    t = (await api('/api/token')).token;
+  } catch {
+    // shown as "nothing yet"
+  }
+  show(t);
+  box.append(
+    el('h3', {}, 'Official token (admin)'),
+    el('p', { class: 'small dim' }, 'After your launch, paste the token contract address here. The server checks it is an ERC-20 contract on Robinhood Chain, then shows it on the homepage with a copy button.'),
+    current,
+    input,
+    el('div', { class: 'wm-actions' }, setBtn, clear),
+    line,
+  );
+  return box;
 }
 
 // ---------- Start: already signed in? ----------

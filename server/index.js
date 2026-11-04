@@ -13,7 +13,9 @@
 //   RH_RPC_URL        read-only RPC for payment checks, hosted scans, and the Pro RPC proxy (default: public RPC)
 //   RH_EXPLORER_KEY   Blockscout PRO key for hosted scans (optional; without it the ETH funding graph is PARTIAL)
 //   RH_HOSTED=0       turn hosted scans / watchlist / launch feed off
+//   RH_ADMIN          comma-separated 0x wallet(s) that may set the official token shown on the homepage
 import { resolve } from 'node:path';
+import { getAddress, isAddress } from 'ethers';
 import { PROJECT_ROOT } from '../src/config/paths.js';
 import { createAccountServer } from './app.js';
 import { proSettings } from './pro.js';
@@ -31,6 +33,10 @@ const dbFile = resolve(env.RH_DB_FILE || resolve(PROJECT_ROOT, 'server/data/acco
 const pro = proSettings(env);
 const ctx = createScanContext(env);
 const hostedOn = env.RH_HOSTED !== '0';
+const admins = (env.RH_ADMIN ?? '').split(',').map((a) => a.trim()).filter(Boolean).map((a) => {
+  if (!isAddress(a)) throw new Error('RH_ADMIN must be comma-separated 0x addresses');
+  return getAddress(a);
+});
 
 const app = createAccountServer({
   publicOrigin,
@@ -40,13 +46,14 @@ const app = createAccountServer({
   chainRpc: ctx.rpc,
   rpcUpstream: ctx.config.rpcUrl,
   createHosted: hostedOn ? (db) => createHostedService({ db, ctx }) : null,
+  admins,
 });
 await app.listen(port);
 app.hosted?.start();
 const on = (b) => (b ? 'on' : 'off');
 process.stdout.write(
   `RING-HUNTER account server on 127.0.0.1:${port} (public origin ${publicOrigin})\n` +
-    `  Pro payments ${on(pro.treasury && pro.priceWei)} · token-holder Pro ${on(pro.token && pro.tokenMin)} · hosted scans ${on(hostedOn)}\n`,
+    `  Pro payments ${on(pro.treasury && pro.priceWei)} · token-holder Pro ${on(pro.token && pro.tokenMin)} · hosted scans ${on(hostedOn)} · admin wallets ${admins.length}\n`,
 );
 const stop = () => app.close().then(() => process.exit(0));
 process.on('SIGINT', stop);

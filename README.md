@@ -266,6 +266,7 @@ Server settings (all optional — a feature stays off until its values are set; 
 | `RH_RPC_URL` | Read-only RPC for payment checks, hosted scans, and the RPC proxy (default: the public RPC) |
 | `RH_EXPLORER_KEY` | Blockscout PRO key for hosted scans (optional; otherwise the ETH funding graph is PARTIAL) |
 | `RH_HOSTED=0` | Turn hosted scans, watchlist, and the launch feed off |
+| `RH_ADMIN` | Comma-separated admin wallet(s). Signed in with one of them, the dashboard shows an **Official token** form: paste the token contract address and the homepage shows it with a copy button (checked read-only first: contract code + ERC-20 name/symbol/decimals). Remove hides the panel again. |
 
 On the VPS put them in `/etc/ringhunter.env` (root-only; loaded by `deploy/ringhunter.service`), not in the repo.
 

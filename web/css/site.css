@@ -93,6 +93,13 @@ section p strong { color: var(--text); }
 .ticks-row b { display: block; font-size: 22px; letter-spacing: -0.02em; }
 .ticks-row span { display: block; font-size: 13.5px; color: var(--muted); margin-top: 2px; }
 
+/* ---------- Official token (hero) ---------- */
+.token-ca { margin-top: 28px; padding: 16px 18px; border: 1px solid rgba(240, 180, 41, 0.4); border-radius: 16px; background: rgba(240, 180, 41, 0.05); max-width: 560px; }
+.token-ca[hidden] { display: none; }
+.token-ca .lbl { font-size: 13px; font-weight: 700; letter-spacing: 0.04em; }
+.token-ca-links { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 10px; font-size: 14px; }
+.token-ca-links a, .linkish { color: var(--gold); background: none; border: 0; padding: 0; font: inherit; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+
 /* ---------- Copyable commands ---------- */
 .cmd { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; margin-top: 10px; padding: 11px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--glass); color: var(--text); font: inherit; text-align: left; cursor: pointer; transition: border-color 0.3s, background 0.3s; }
 .cmd code { font-size: 14px; overflow-wrap: anywhere; }
@@ -281,6 +288,9 @@ footer { border-top: 1px solid var(--line); margin-top: 40px; overflow: hidden; 
 .pro-form input, .pro-block textarea { flex: 1; min-width: 0; width: 100%; padding: 11px 14px; border-radius: 12px; border: 1px solid var(--edge); background: var(--glass); color: var(--text); font: 13.5px var(--mono); outline: none; transition: border-color 0.3s; }
 .pro-block textarea { resize: vertical; margin-bottom: 8px; }
 .pro-form input:focus, .pro-block textarea:focus { border-color: var(--gold); }
+.acct-admin { margin-top: 28px; padding-top: 22px; border-top: 1px solid var(--line); }
+.acct-admin input { width: 100%; margin-top: 14px; padding: 11px 14px; border-radius: 12px; border: 1px solid var(--edge); background: var(--glass); color: var(--text); font: 13.5px var(--mono); outline: none; }
+.acct-admin input:focus { border-color: var(--gold); }
 .pro-list { display: grid; gap: 8px; }
 .pro-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--glass); font-size: 14px; }
 .pro-row a { color: var(--gold); }

@@ -16,6 +16,7 @@ import { send, serveStatic, PUBLIC_DIR } from '../src/web/server.js';
 import { openDb } from './db.js';
 import { buildSiweMessage, newNonce, signatureMatches, NONCE_TTL_MS } from './siwe.js';
 import { proSettings, publicProInfo, verifyPayment, createTokenChecker, ProError } from './pro.js';
+import { ERC20 } from '../src/adapters/evm/abis.js';
 import { REPORT_ID_RE } from './hosted.js';
 import { READ_METHODS } from '../src/adapters/evm/rpcClient.js';
 
@@ -98,6 +99,7 @@ function cookieValue(req, name) {
  * @param {string} [opts.rpcUpstream] JSON-RPC URL the Pro RPC proxy forwards to (null = proxy off)
  * @param {(db:object)=>object} [opts.createHosted] builds the hosted scan service (null = hosted scans off)
  * @param {typeof fetch} [opts.fetchImpl]
+ * @param {string[]} [opts.admins] checksummed wallet addresses allowed to set the official token (RH_ADMIN)
  */
 export function createAccountServer({
   publicOrigin,
@@ -110,7 +112,9 @@ export function createAccountServer({
   rpcUpstream = null,
   createHosted = null,
   fetchImpl = globalThis.fetch,
+  admins = [],
 }) {
+  const adminSet = new Set(admins);
   const origin = new URL(publicOrigin).origin;
   const secure = origin.startsWith('https:');
   const publicHost = new URL(origin).host;
@@ -177,6 +181,29 @@ export function createAccountServer({
     if (typeof v !== 'string' || !isAddress(v)) throw new HttpError(400, `Not a valid token address: ${String(v).slice(0, 60)}`);
     return getAddress(v);
   };
+  /** Official RING-HUNTER token shown on the homepage (set by an admin wallet; stored in kv). */
+  const officialToken = () => {
+    const v = db.getKv('official_token');
+    return v ? JSON.parse(v) : null;
+  };
+  /** Read-only check that the address is an ERC-20 contract on Robinhood Chain, so a typo cannot go live. */
+  async function readToken(address) {
+    if (!chainRpc) throw new HttpError(503, 'Robinhood Chain RPC is not configured on this server');
+    const read = async (fn) => ERC20.decodeFunctionResult(fn, await chainRpc.call(address, ERC20.encodeFunctionData(fn)))[0];
+    let code;
+    try {
+      code = await chainRpc.getCode(address);
+    } catch {
+      throw new HttpError(502, 'Robinhood Chain RPC is unreachable right now — try again in a minute');
+    }
+    if (!code || code === '0x') throw new HttpError(400, 'No contract at this address on Robinhood Chain — check the address (is the launch confirmed?)');
+    try {
+      const [name, symbol, decimals] = await Promise.all([read('name'), read('symbol'), read('decimals')]);
+      return { address, name: String(name).slice(0, 64), symbol: String(symbol).slice(0, 24), decimals: Number(decimals) };
+    } catch {
+      throw new HttpError(400, 'This contract does not answer name/symbol/decimals like an ERC-20 token');
+    }
+  }
   const reportRow = (r) => ({ id: r.id, token: r.token, symbol: r.symbol, status: r.status, error: r.error, score: r.score, level: r.level, createdAt: iso(r.created_at), finishedAt: iso(r.finished_at) });
 
   /** Pro RPC proxy: only read methods (same allow-list as the CLI client), forwarded to rpcUpstream. */
@@ -229,7 +256,7 @@ export function createAccountServer({
     },
     'GET /api/me': async (req, res) => {
       const address = requireSession(req);
-      json(res, 200, { address, apiKey: keyInfo(address) });
+      json(res, 200, { address, apiKey: keyInfo(address), admin: adminSet.has(address) });
     },
     'POST /api/key': async (req, res) => {
       const address = requireSession(req);
@@ -340,6 +367,25 @@ export function createAccountServer({
       json(res, 200, { launches: db.listLaunches(100).map((l) => ({ token: l.token, deployer: l.deployer, block: l.block, txHash: l.tx_hash })) });
     },
     'POST /api/rpc': proxyRpc,
+
+    // ---- Official token (homepage panel) ----
+    'GET /api/token': async (req, res) => {
+      json(res, 200, { token: officialToken() });
+    },
+    // { address: "0x…" } sets it after an on-chain check; { address: null } hides the panel. Admin session only.
+    'POST /api/admin/token': async (req, res) => {
+      const address = requireSession(req);
+      if (!adminSet.has(address)) throw new HttpError(403, 'Only the site admin wallet can change the official token');
+      const body = await readJson(req);
+      if (body.address === null) {
+        db.setKv('official_token', '');
+        return json(res, 200, { token: null });
+      }
+      const t = await readToken(tokenParam(body.address));
+      const token = { ...t, setAt: iso(now()) };
+      db.setKv('official_token', JSON.stringify(token));
+      json(res, 200, { token });
+    },
   };
 
   const server = createServer(async (req, res) => {

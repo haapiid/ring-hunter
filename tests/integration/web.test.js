@@ -81,7 +81,7 @@ test('wallet: no transaction/typed-data methods in frontend code; personal_sign 
 test('account page talks only to its own same-origin /api and keeps nothing in browser storage', () => {
   const acc = codeOnly(jsFiles.find(([f]) => f === 'account.js')[1]);
   const paths = [...new Set([...acc.matchAll(/api\('([^']+)'/g)].map((m) => m[1]))].sort();
-  assert.deepEqual(paths, ['/api/auth/nonce', '/api/auth/verify', '/api/key', '/api/key/revoke', '/api/logout', '/api/me']);
+  assert.deepEqual(paths, ['/api/admin/token', '/api/auth/nonce', '/api/auth/verify', '/api/key', '/api/key/revoke', '/api/logout', '/api/me', '/api/token']);
   assert.ok(!/https?:\/\//.test(acc), 'no absolute URLs');
   for (const bad of ['localStorage', 'sessionStorage', 'document.cookie']) assert.ok(!acc.includes(bad), bad);
 });
